@@ -1,13 +1,9 @@
 import numpy as np
-import pandas as pd
-from collections import Counter
 from random import shuffle
+import os
 
 train_data = np.load('trainSet.npy')
 
-df = pd.DataFrame(train_data)
-print(df.head())
-print(Counter(df[1].apply(str)))
 
 lefts = []
 rights = []
@@ -17,27 +13,24 @@ shuffle(train_data)
 
 for data in train_data:
     img = data[0]
-    choice = data[1]
+    joystickInput = data[1]
 
- #   if choice[1] > 0.1:
- #       lefts.append([img,choice])
- #   elif abs(choice[1]) <= 0.1:
- #       forwards.append([img,choice])
- #   elif choice[1] < -0.1:
- #       rights.append([img,choice])
- #   else:
- #       print('no matches')
+    if (joystickInput[0] > 0.1):
+        print(joystickInput)
+        print("left")
+        lefts.append([img,joystickInput])
 
+    if (joystickInput[1] > 0.1):
+        print(joystickInput)
+        print("right")
+        rights.append([img,joystickInput])
 
-    if choice[0] > 0.1:
-        #links
-        lefts.append([img,choice])
-    elif abs(choice[0]+choice[1]) < 0.1:
-        forwards.append([img,choice])
+    if (joystickInput[0]+joystickInput[1] < 0.1):
+        print(joystickInput)
 
-    elif choice[1] < -0.1:
-        # rechts
-        rights.append([img,choice])
+        print("forwards")
+        forwards.append([img,joystickInput])
+
     else:
         print('no matches')
 
@@ -49,8 +42,12 @@ print(len(forwards))
 print(len(lefts))
 print(len(rights))
 
-
 final_data = forwards + lefts + rights
 shuffle(final_data)
 
-np.save('trainSetBalanced.npy', final_data)
+try:
+    os.remove("trainSet.npy")
+except OSError:
+    pass
+
+np.save('trainSet.npy', final_data)
