@@ -42,8 +42,15 @@ def ImageCallback(msg):
 
 def InputCallback(msg):
     global joystickInput
-    joystickInput = [msg.linear.x,msg.angular.z]
-    print joystickInput
+
+    if (msg.angular.z > 0.1):
+        joystickInput = [msg.angular.z, 0]
+    elif (msg.angular.z < -0.1):
+        joystickInput = [0, abs(msg.angular.z)]
+    else:
+        print(msg.angular.z)
+        joystickInput = [0,0]
+
 
 def main():
     print("Starting recoring soon")
@@ -55,7 +62,7 @@ def main():
     rospy.Subscriber("/camera/image_raw", Image, ImageCallback)
     # Spin until ctrl + c
     while not rospy.is_shutdown():
-        if frameCounter > 10:
+        if frameCounter > 1000:
             print("=================== Frames Saved ======================")
             shuffle(trainSet)
             try:

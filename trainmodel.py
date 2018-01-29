@@ -5,8 +5,10 @@ epochs = 1
 inputWidth = 128
 inputHeight = 72
 savedTrainSet = np.load("trainSet.npy")
-trainSet = savedTrainSet[0:200]
-valSet = savedTrainSet[-200:]
+#lenTrainSet=len(savedTrainSet)
+#print(lenTrainSet)
+trainSet = savedTrainSet[0:]
+valSet = trainSet
 
 # each image is reshaped from a matrix into a single array
 trainImageSet = np.array([i[0] for i in trainSet]).reshape(-1, inputWidth, inputHeight, 3)
