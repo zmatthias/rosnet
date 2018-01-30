@@ -32,13 +32,12 @@ def ImageCallback(msg):
         pass
 
     prediction = model.predict(cv2Img.reshape(-1, inputWidth, inputHeight, 3))[0]
-    prediction[0] = prediction[0] /10
     print(prediction)
 
 
     controlMsg = Twist()
-    controlMsg.linear.x = prediction[0]
-    controlMsg.angular.z = prediction[1]
+    controlMsg.linear.x = 0.1
+    controlMsg.angular.z = prediction[0]-prediction[2]
 
     global pub
     pub.publish(controlMsg)

@@ -18,7 +18,7 @@ import numpy as np
 bridge = CvBridge()
 frameCounter = 0
 trainSet = []
-joystickInput = [0,0]
+joystickInput = [0,0,0]
 
 
 def ImageCallback(msg):
@@ -44,12 +44,11 @@ def InputCallback(msg):
     global joystickInput
 
     if (msg.angular.z > 0.1):
-        joystickInput = [msg.angular.z, 0]
+        joystickInput = [1, 0, 0]
     elif (msg.angular.z < -0.1):
-        joystickInput = [0, abs(msg.angular.z)]
+        joystickInput = [0, 0, 1]
     else:
-        print(msg.angular.z)
-        joystickInput = [0,0]
+        joystickInput = [0,1,0]
 
 
 def main():

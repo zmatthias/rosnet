@@ -5,10 +5,10 @@ epochs = 1
 inputWidth = 128
 inputHeight = 72
 savedTrainSet = np.load("trainSet.npy")
-#lenTrainSet=len(savedTrainSet)
+lenTrainSet=int((len(savedTrainSet)/2)-1)
 #print(lenTrainSet)
-trainSet = savedTrainSet[0:]
-valSet = trainSet
+trainSet = savedTrainSet[0:lenTrainSet]
+valSet = savedTrainSet[lenTrainSet:-1]
 
 # each image is reshaped from a matrix into a single array
 trainImageSet = np.array([i[0] for i in trainSet]).reshape(-1, inputWidth, inputHeight, 3)
@@ -25,7 +25,7 @@ model = network()
 #evalSolutionSet = np.array([i[1] for i in savedEvalSet])
 
 
-for epochs in range (1,30):
+for epochs in range (1,100):
     model.fit({'input': trainImageSet}, {'targets': trainSolutionSet}, n_epoch=1, validation_set=({'input': valImageSet}, {'targets': valSolutionSet}),
               snapshot_step=500, show_metric=True, run_id=modelName)
 
