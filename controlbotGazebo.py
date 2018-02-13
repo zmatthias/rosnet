@@ -24,17 +24,17 @@ pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
 
 def printPrediction(prediction):
-
-    forwardCertainty = prediction[1]*100
+    forwardCertainty = prediction[1] * 100
     if (prediction[0] - prediction[2]) > 0:
 
         turningString = "left"
     else:
         turningString = "right"
 
-    turningCertainty = abs((prediction[0] - prediction[2]))*100
+    turningCertainty = abs((prediction[0] - prediction[2])) * 100
 
-    print("Forward: {}% \t \t Turn {}: {}% ".format(format(forwardCertainty, '.0f'), turningString, format(turningCertainty, '.0f')))
+    print("Forward: {}% \t \t Turn {}: {}% ".format(format(forwardCertainty, '.0f'), turningString,
+                                                    format(turningCertainty, '.0f')))
 
 
 def ImageCallback(msg):
@@ -48,10 +48,9 @@ def ImageCallback(msg):
     prediction = model.predict(cv2Img.reshape(-1, inputWidth, inputHeight, 3))[0]
     printPrediction(prediction)
 
-
     controlMsg = Twist()
-    controlMsg.linear.x = 0.2*prediction[1]+0.05
-    controlMsg.angular.z = 1*(prediction[0]-prediction[2])
+    controlMsg.linear.x = 0.2 * prediction[1] + 0.05
+    controlMsg.angular.z = 1 * (prediction[0] - prediction[2])
 
     global pub
     pub.publish(controlMsg)
@@ -63,26 +62,27 @@ def ImageCallback(msg):
             break
         break
 
+
 def StopBot():
     print "shutdown!"
     controlMsg = Twist()
-    controlMsg.linear.x = 0 
-    controlMsg.angular.z = 0 
+    controlMsg.linear.x = 0
+    controlMsg.angular.z = 0
     pub.publish(controlMsg)
+
 
 def main():
     rospy.init_node('controlbot')
     # Define your image topic
-    image_topic = "/camera/image"
+    image_topic = "/camera/image_raw"
     rospy.on_shutdown(StopBot)
-   
 
- # Set up your subscriber and define its callback
-    rospy.Subscriber(image_topic, Image, ImageCallback,queue_size = 1)
-
+    # Set up your subscriber and define its callback
+    rospy.Subscriber(image_topic, Image, ImageCallback, queue_size=1)
 
     # Spin until ctrl + c
     rospy.spin()
+
 
 if __name__ == "__main__":
     main()

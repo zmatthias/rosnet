@@ -15,17 +15,17 @@ for data in train_data:
     img = data[0]
     joystickInput = data[1]
 
-    if (joystickInput = [1,0,0]):
+    if (joystickInput == [1,0,0]):
         print(joystickInput)
         print("left")
         lefts.append([img,joystickInput])
 
-    if (joystickInput = [0,0,1]):
+    if (joystickInput == [0,0,1]):
         print(joystickInput)
         print("right")
         rights.append([img,joystickInput])
 
-    if (joystickInput =[0,1,0]):
+    if (joystickInput == [0,1,0]):
         print(joystickInput)
         print("forwards")
         forwards.append([img,joystickInput])
