@@ -1,12 +1,23 @@
 import numpy as np
 from network import network
+import glob
 
-epochs = 1
 inputWidth = 128
 inputHeight = 72
-savedTrainSet = np.load("trainSet.npy")
+
+file_list = glob.glob("data/*.npy")
+print(file_list)
+
+savedTrainSet = []
+for file_path in file_list:
+    savedTrainSet.extend(np.load(file_path))
+
+print(len(savedTrainSet))
+#savedTrainSet = np.load("data/2018_02_13_18_50_34_trainSet.npy")
+
+
 lenTrainSet=int((len(savedTrainSet)/2)-1)
-#print(lenTrainSet)
+print(lenTrainSet)
 trainSet = savedTrainSet[0:lenTrainSet]
 valSet = savedTrainSet[lenTrainSet:-1]
 
