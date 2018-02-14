@@ -15,41 +15,10 @@ bridge = CvBridge()
 trainSet = []
 joystickInput = [0,0,0]
 controlBotRunning = 0
-startSum = 0
 startPreviouslyPressed = 0
 recordFlag = 0
 saveFlag = 0
 pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
-
-def pubStop():
-    controlMsg = Twist()
-    controlMsg.linear.x = 0
-    controlMsg.angular.z = 0
-    global pub
-    pub.publish(controlMsg)
-
-def deleteTrainingData():
-    print("DELETE")
-def trainNet():
-    print("Train!")
-
-def saveTrainingData():
-    if len(trainSet) >= 1:
-        dateString = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        np.save("/home/z/Dropbox/bachelorarbeit/catkin_ws/src/rosnet/src/data/" + dateString + "_trainSet.npy", trainSet)
-        print("{} Frames saved".format(len(trainSet)))
-        global trainSet
-        trainSet = []
-
-def TwistCallback(msg):
-    global joystickInput
-
-    if (msg.angular.z > 0.1):
-        joystickInput = [1, 0, 0]
-    elif (msg.angular.z < -0.1):
-        joystickInput = [0, 0, 1]
-    else:
-        joystickInput = [0,1,0]
 
 def JoyCallback(msg):
     r1 = msg.buttons[11]
@@ -62,15 +31,24 @@ def JoyCallback(msg):
    # print("delta:\t {}".format(delta))
    # print("O: \t {}".format(o))
    # print("X: \t {}".format(x))
+    global controlBotRunning
+    global startPreviouslyPressed
 
-    if start:
-        global startSum
-        startSum += 1
-        print startSum
+    if start and not controlBotRunning and not startPreviouslyPressed:
+        controlBotRunning = 1
+        global xterm
+        xterm = Popen(["xterm", "-e", "rosrun rosnet controlbotGazebo.py"])
+        startPreviouslyPressed = 1
+        time.sleep(2)
+
+    if start and controlBotRunning and not startPreviouslyPressed:
+        xterm.terminate()
+        pubStop()
+        controlBotRunning = 0
+        startPreviouslyPressed = 1
+
     if not start:
-        global startPreviouslyPressed
         startPreviouslyPressed = 0
-        startSum = 0
 
     if o:
         trainNet()
@@ -84,25 +62,6 @@ def JoyCallback(msg):
 
     if select and start:
         deleteTrainingData()
-
-    global controlBotRunning
-    if startSum > 5 and not controlBotRunning and not startPreviouslyPressed:
-        controlBotRunning = 1
-        global xterm
-        xterm = Popen(["xterm", "-e", "rosrun rosnet controlbotGazebo.py"])
-        startSum = 0
-        startPreviouslyPressed = 1
-        time.sleep(2)
-
-    if startSum > 5 and controlBotRunning and not startPreviouslyPressed:
-        xterm.terminate()
-        pubStop()
-        controlBotRunning = 0
-        startSum = 0
-        startPreviouslyPressed = 1
-
-        #time.sleep(10)
-
 def ImageCallback(msg):
     try:
         # Convert your ROS Image message to OpenCV2
@@ -121,16 +80,43 @@ def ImageCallback(msg):
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         break
+def TwistCallback(msg):
+    global joystickInput
+
+    if (msg.angular.z > 0.1):
+        joystickInput = [1, 0, 0]
+    elif (msg.angular.z < -0.1):
+        joystickInput = [0, 0, 1]
+    else:
+        joystickInput = [0,1,0]
+
+def pubStop():
+    controlMsg = Twist()
+    controlMsg.linear.x = 0
+    controlMsg.angular.z = 0
+    global pub
+    pub.publish(controlMsg)
+def deleteTrainingData():
+    print("DELETE")
+def trainNet():
+    print("Train!")
+def saveTrainingData():
+    global trainSet
+    if len(trainSet) >= 1:
+        dateString = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        np.save("/home/z/Dropbox/bachelorarbeit/catkin_ws/src/rosnet/src/data/" + dateString + "_trainSet.npy", trainSet)
+        print("{} Frames saved".format(len(trainSet)))
+        trainSet = []
+
+
 
 def main():
     rospy.init_node('rosjoy_listener')
-    # Set up your subscriber and define its callback
     rospy.Subscriber("/joy", Joy, JoyCallback,queue_size = 1)
     rospy.Subscriber("/cmd_vel", Twist, TwistCallback)
     rospy.Subscriber("/camera/image_raw", Image, ImageCallback)
-
     rospy.spin()
-    #while not rospy.is_shutdown():
+
 
 if __name__ == "__main__":
     main()
