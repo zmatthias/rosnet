@@ -15,6 +15,6 @@ def displayData(dataToDisplay):
                 break
 
 #set = np.load("evalSet.npy")
-set = np.load("trainSet.npy")
+set = np.load("data/2018_02_27_13_26_33_trainSet.npy")
 print(set.shape)
 displayData(set)

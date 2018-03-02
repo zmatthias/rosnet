@@ -16,12 +16,11 @@ import numpy as np
 bridge = CvBridge()
 
 model = network()
-model.load('/home/z/Dropbox/bachelorarbeit/catkin_ws/src/rosnet/src/model/network.model')
+model.load('model/network.model')
 inputWidth = 128
 inputHeight = 72
 
 pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
-
 
 def printPrediction(prediction):
 
@@ -36,7 +35,6 @@ def printPrediction(prediction):
 
     print("Forward: {}% \t \t Turn {}: {}% ".format(format(forwardCertainty, '.0f'), turningString, format(turningCertainty, '.0f')))
 
-
 def ImageCallback(msg):
     print("Received an image!")
     try:
@@ -48,9 +46,8 @@ def ImageCallback(msg):
     prediction = model.predict(cv2Img.reshape(-1, inputWidth, inputHeight, 3))[0]
     printPrediction(prediction)
 
-
     controlMsg = Twist()
-    controlMsg.linear.x = 0.2*prediction[1]+0.05
+    controlMsg.linear.x = 0.05*prediction[1]+0.0
     controlMsg.angular.z = 1*(prediction[0]-prediction[2])
 
     global pub
@@ -72,16 +69,9 @@ def StopBot():
 
 def main():
     rospy.init_node('controlbot')
-    # Define your image topic
     image_topic = "/camera/image"
     rospy.on_shutdown(StopBot)
-   
-
- # Set up your subscriber and define its callback
     rospy.Subscriber(image_topic, Image, ImageCallback,queue_size = 1)
-
-
-    # Spin until ctrl + c
     rospy.spin()
 
 if __name__ == "__main__":
