@@ -9,7 +9,7 @@ import os
 from subprocess import Popen
 import time
 import datetime
-from generateSound import tts
+
 import glob
 
 bridge = CvBridge()
@@ -43,9 +43,9 @@ def JoyCallback(msg):
     if start and not controlBotRunning and not startPreviouslyPressed:
         controlBotRunning = 1
         global xterm
-        xterm = Popen(["xterm", "-e", "rosrun rosnet controlbotGazebo.py"])
+        xterm = Popen(["xterm", "-e", "rosrun rosnet controlbot_gazebo.py"])
         startPreviouslyPressed = 1
-        tts("autonomous mode")
+        print("autonomous mode")
         time.sleep(2)
 
     if start and controlBotRunning and not startPreviouslyPressed:
@@ -53,7 +53,7 @@ def JoyCallback(msg):
         pubStop()
         controlBotRunning = 0
         startPreviouslyPressed = 1
-        tts("manual mode")
+        print("manual mode")
 
     if not start:
         startPreviouslyPressed = 0
@@ -95,7 +95,7 @@ def JoyCallback(msg):
 
     if select and square:
         os.system("mv /home/z/Dropbox/bachelorarbeit/catkin_ws/src/rosnet/src/data/*.npy /home/z/Dropbox/bachelorarbeit/catkin_ws/src/rosnet/src/data/archive")
-        tts("training sets, archived")
+        print("training sets, archived")
 
 
 def ImageCallback(msg):
@@ -119,14 +119,12 @@ def ImageCallback(msg):
 def TwistCallback(msg):
     global joystickInput
 
-    if (msg.angular.z > 0.15):
-        joystickInput = [1, 0, 0, 0]
-    elif (msg.angular.z < -0.15):
-        joystickInput = [0, 0, 1, 0]
-    elif (msg.linear.x > 0.01):
-        joystickInput = [0, 1, 0, 0]
-    else:
-        joystickInput = [0, 0, 0, 1]
+    if (msg.angular.z > 0.05):
+        joystickInput = [msg.angular.z, msg.linear.x, 0]
+    elif (msg.angular.z < -0.05):
+        joystickInput = [0, msg.linear.x, abs(msg.angular.z)]
+   # elif (msg.linear.x > 0.01):
+   #     joystickInput = [0, msg.linear.x, 0]
 
     print(joystickInput)
 
